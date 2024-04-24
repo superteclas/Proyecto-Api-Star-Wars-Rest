@@ -65,34 +65,48 @@ def get_all_users():
 # METODO GET PARA OBTENER TODOS LOS USUARIOS------------------------------------------------------- CON EXPLICACION
 
 @app.route('/users/favorites', methods=['GET'])
-def get_user_favorites():
-    # Obtiene el ID del usuario del cuerpo de la solicitud en formato JSON
-    user_id = request.json.get('id')
-    
-    # Verifica si el usuario existe en la base de datos
-    user = User.query.get(user_id)
-    if user is None:
-        return jsonify({"msg": "Usuario no encontrado"}), 404
-    
-    # Obtiene todos los favoritos del usuario actual
-    favorite_characters = CharactersFavorites.query.filter_by(user_id=user_id).all()
-    favorite_planets = PlanetsFavorites.query.filter_by(user_id=user_id).all()
-    favorite_vehicles = VehiclesFavorites.query.filter_by(user_id=user_id).all()
-    
-    # Serializa los favoritos
-    serialized_characters = [fav.serialize() for fav in favorite_characters]
-    serialized_planets = [fav.serialize() for fav in favorite_planets]
-    serialized_vehicles = [fav.serialize() for fav in favorite_vehicles]
-    
-    # Devuelve los favoritos del usuario actual
-    response_body = {
-        "user": user.serialize(),
-        "favorite_characters": serialized_characters,
-        "favorite_planets": serialized_planets,
-        "favorite_vehicles": serialized_vehicles
-    }
-    
-    return jsonify(response_body), 200
+def get_all_favorite():
+    # Obtiene todos los usuarios
+    users = User.query.all()
+
+    # Verifica si no hay usuarios en la base de datos
+    if not users:
+        return jsonify({"msg": "No users found"}), 404
+
+    # Lista para almacenar todos los favoritos
+    all_favorites = []
+
+    # Itera sobre cada usuario para obtener sus favoritos
+    for user in users:
+        # Obtiene los favoritos de personajes del usuario actual
+        characters_favorites = CharactersFavorites.query.filter_by(user_id=user.id).all()
+        # Serializa los favoritos de personajes
+        serialized_characters = [fav.serialize() for fav in characters_favorites]
+
+        # Obtiene los favoritos de planetas del usuario actual
+        planets_favorites = PlanetsFavorites.query.filter_by(user_id=user.id).all()
+        # Serializa los favoritos de planetas
+        serialized_planets = [fav.serialize() for fav in planets_favorites]
+
+        # Obtiene los favoritos de vehículos del usuario actual
+        vehicles_favorites = VehiclesFavorites.query.filter_by(user_id=user.id).all()
+        # Serializa los favoritos de vehículos
+        serialized_vehicles = [fav.serialize() for fav in vehicles_favorites]
+
+        # Agrupa los favoritos del usuario actual
+        user_favorites = {
+            "user_id": user.id,
+            "favorite_characters": serialized_characters,
+            "favorite_planets": serialized_planets,
+            "favorite_vehicles": serialized_vehicles
+        }
+
+        # Agrega los favoritos del usuario actual a la lista de todos los favoritos
+        all_favorites.append(user_favorites)
+
+    # Devuelve la lista de todos los favoritos
+    return jsonify({"msg": "Here are all the favorites", "results": all_favorites}), 200
+
 
 #------------------------METODOS CHARACTERS--------------------------------------------------------------------------------------------------------------------------------------------
 

@@ -1,0 +1,34 @@
+@app.route('/users/favorites', methods=['GET'])
+@jwt_required()
+def get_all_favorite():
+    current_user_email = get_jwt_identity()
+    check_user = User.query.filter_by(email=current_user_email).first()
+    user_id = check_user.id
+
+
+    query_characters = FavoritesCharacters.query.filter_by(user_id = user_id).all()
+    results_characters = list(map(lambda item: item.serialize(), query_characters))
+   
+    query_planets = FavoritesPlanets.query.filter_by(user_id = user_id).all()
+    results_planets = list(map(lambda item: item.serialize(), query_planets))
+
+    query_vehicles = FavoritesVehicles.query.filter_by(user_id = user_id).all()
+    results_vehicles = list(map(lambda item: item.serialize(), query_vehicles))
+
+    # if check_user:
+    #     return jsonify(logged_in_as=check_user), 200
+
+    if query_vehicles == [] and query_planets == [] and query_characters == []:
+        return jsonify({"msg" : "There is no favorites"}), 404
+    else:
+        response_body = {
+            "msg": "Hello, this are the favorite characters ",
+            "results": [           
+                results_characters,
+                results_planets,
+                results_vehicles
+                ]  
+        }
+
+
+        return jsonify(response_body), 200
