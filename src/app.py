@@ -44,18 +44,18 @@ def sitemap():
 
 #----------------------------METODO USER----------------------------------------------------------------------------------------------------------------------------------------------
 
-# METODO GET PARA OBTENER TODOS LOS USUARIOS----------------------------------------------------- CON EXPLICACION
+# METODO GET PARA OBTENER TODOS LOS USUARIOS------------------------ CON EXPLICACION
 
 @app.route('/user', methods=['GET'])
 def get_all_users():
     # Obtener todos los usuarios de la base de datos
     query_results = User.query.all()
-    # Verificar si no hay resultados
+    # Verifica si no hay resultados
     if not query_results:
         return jsonify({"msg" : "No hay usuarios en la base de datos"}), 404
-    # Serializar los resultados
+    # Serializa los resultados
     results = [item.serialize() for item in query_results]
-    # Crear la respuesta
+    # Crea la respuesta
     response_body = {
         "msg": "Hello, te muestro los usuarios que existen en la base de datos",
         "results": results
@@ -76,24 +76,22 @@ def get_all_favorite():
     # Lista para almacenar todos los favoritos
     all_favorites = []
 
-    # Itera sobre cada usuario para obtener sus favoritos
+    # Pasa sobre cada usuario para obtener sus favoritos
     for user in users:
         # Obtiene los favoritos de personajes del usuario actual
         characters_favorites = CharactersFavorites.query.filter_by(user_id=user.id).all()
         # Serializa los favoritos de personajes
         serialized_characters = [fav.serialize() for fav in characters_favorites]
 
-        # Obtiene los favoritos de planetas del usuario actual
+       
         planets_favorites = PlanetsFavorites.query.filter_by(user_id=user.id).all()
-        # Serializa los favoritos de planetas
         serialized_planets = [fav.serialize() for fav in planets_favorites]
 
-        # Obtiene los favoritos de vehículos del usuario actual
+        
         vehicles_favorites = VehiclesFavorites.query.filter_by(user_id=user.id).all()
-        # Serializa los favoritos de vehículos
         serialized_vehicles = [fav.serialize() for fav in vehicles_favorites]
 
-        # Agrupa los favoritos del usuario actual
+        # Agrupa los favoritos del usuario
         user_favorites = {
             "user_id": user.id,
             "favorite_characters": serialized_characters,
@@ -101,10 +99,10 @@ def get_all_favorite():
             "favorite_vehicles": serialized_vehicles
         }
 
-        # Agrega los favoritos del usuario actual a la lista de todos los favoritos
+        # Agrega los favoritos del usuario a la lista de todos los favoritos
         all_favorites.append(user_favorites)
 
-    # Devuelve la lista de todos los favoritos
+    # Retorna la lista de todos los favoritos
     return jsonify({"msg": "Here are all the favorites", "results": all_favorites}), 200
 
 
@@ -184,7 +182,7 @@ def create_people():
     return jsonify("El personaje ya existe"), 400
 
 
-# METODO DELETE ELIMINAR PERSONAJES ------------------------------------------ CON EXPLICACION
+# METODO DELETE ELIMINAR PERSONAJES ----------------------- CON EXPLICACION
 
 @app.route('/people/<int:people_id>', methods=['DELETE'])
 def delete_person(people_id):
@@ -205,36 +203,36 @@ def delete_person(people_id):
         return jsonify({"error": "Personaje no encontrado"}), 404
     
 
-# METODO POST AÑADIR FAVORITOS PERSONAJES-------------------------------------------------CON EXPLICACION
+# METODO POST AÑADIR FAVORITOS PERSONAJES----------------------CON EXPLICACION
 
 @app.route('/favorite/people/<int:people_id>', methods=['POST'])
 def create_favorite_characters(people_id):
-    # Obtiene los datos del cuerpo de la solicitud en formato JSON
+    # Obtiene los datos 
     body = request.json
     
-    # Verifica si el usuario existe
+    # Verifica  usuario 
     check_user = User.query.filter_by(id=body["id"]).first()
     if check_user is None:
         # Si el usuario no existe, devuelve un mensaje de error y un código de estado HTTP 404
         return jsonify({"msg": "No existe el usuario"}), 404
     else:
-        # Verifica si el personaje existe
+        # Verifica  personaje 
         check_characters = Characters.query.filter_by(id=people_id).first()
         if check_characters is None:
-            # Si el personaje no existe, devuelve un mensaje de error y un código de estado HTTP 404
+            # Si el personaje no existe.......
             return jsonify({"msg": "No existe el personaje"}), 404
         else:
-            # Verifica si el personaje ya está en favoritos para ese usuario
+            # si el personaje ya está en favoritos..........
             check_favorite_characters = CharactersFavorites.query.filter_by(characters_id=people_id, user_id=body["id"]).first()
             if check_favorite_characters is None:
                 # Si el personaje no está en favoritos, lo añade a la lista de favoritos del usuario
                 new_favorite_characters = CharactersFavorites(user_id=body["id"], characters_id=people_id)
                 db.session.add(new_favorite_characters)
                 db.session.commit()
-                # Devuelve un mensaje indicando que el personaje se añadió a favoritos y un código de estado HTTP 200
+                # Devuelve un mensaje indicando que el personaje se añadió a favoritos y un código de estado
                 return jsonify({"msg": "Personaje añadido a favoritos"}), 200
             else:
-                # Si el personaje ya está en favoritos, devuelve un mensaje indicando que el personaje está repetido y un código de estado HTTP 400
+                # Si el personaje ya está en favoritos, devuelve un mensaje indicando que el personaje está repetido y un código de estado
                 return jsonify({"msg": "Personaje repetido"}), 400
 
 
