@@ -5,10 +5,7 @@ from flask import Flask, request, jsonify, url_for
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
-from flask_jwt_extended import create_access_token
-from flask_jwt_extended import get_jwt_identity
-from flask_jwt_extended import jwt_required
-from flask_jwt_extended import JWTManager 
+from flask_jwt_extended import create_access_token ,get_jwt_identity ,jwt_required ,JWTManager 
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, User, Characters, Planets, Vehicles, CharactersFavorites, PlanetsFavorites, VehiclesFavorites
@@ -56,12 +53,12 @@ def sitemap():
 # create_access_token() function is used to actually generate the JWT.
 @app.route("/login", methods=["POST"])
 def login():
-    username = request.json.get("username", None)
+    email = request.json.get("email", None)
     password = request.json.get("password", None)
-    if username != "test" or password != "test":
+    if email != "superteclas@gmail.com" or password != "test":
         return jsonify({"msg": "Bad username or password"}), 401
 
-    access_token = create_access_token(identity=username)
+    access_token = create_access_token(identity=email)
     return jsonify(access_token=access_token)
 
 
@@ -88,6 +85,7 @@ def get_all_users():
 # METODO GET PARA OBTENER TODOS LOS USUARIOS------------------------------------------------------- CON EXPLICACION
 
 @app.route('/users/favorites', methods=['GET'])
+@jwt_required()
 def get_all_favorite():
     # Obtiene todos los usuarios
     users = User.query.all()
