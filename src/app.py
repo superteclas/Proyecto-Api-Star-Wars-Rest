@@ -87,44 +87,35 @@ def get_all_users():
 @app.route('/users/favorites', methods=['GET'])
 @jwt_required()
 def get_all_favorite():
-    # Obtiene todos los usuarios
-    users = User.query.all()
+    current_user_email = get_jwt_identity()
+    check_user = User.query.filter_by(email=current_user_email).first()
+    user_id = check_user.id
 
-    # Verifica si no hay usuarios en la base de datos
-    if not users:
-        return jsonify({"msg": "No users found"}), 404
 
-    # Lista para almacenar todos los favoritos
-    all_favorites = []
+    query_characters = CharactersFavorites.query.filter_by(user_id = user_id).all()
+    results_characters = list(map(lambda item: item.serialize(), query_characters))
+   
+    query_planets = PlanetsFavorites.query.filter_by(user_id = user_id).all()
+    results_planets = list(map(lambda item: item.serialize(), query_planets))
 
-    # Pasa sobre cada usuario para obtener sus favoritos
-    for user in users:
-        # Obtiene los favoritos de personajes del usuario actual
-        characters_favorites = CharactersFavorites.query.filter_by(user_id=user.id).all()
-        # Serializa los favoritos de personajes
-        serialized_characters = [fav.serialize() for fav in characters_favorites]
+    query_vehicles = VehiclesFavorites.query.filter_by(user_id = user_id).all()
+    results_vehicles = list(map(lambda item: item.serialize(), query_vehicles))
 
-       
-        planets_favorites = PlanetsFavorites.query.filter_by(user_id=user.id).all()
-        serialized_planets = [fav.serialize() for fav in planets_favorites]
 
-        
-        vehicles_favorites = VehiclesFavorites.query.filter_by(user_id=user.id).all()
-        serialized_vehicles = [fav.serialize() for fav in vehicles_favorites]
-
-        # Agrupa los favoritos del usuario
-        user_favorites = {
-            "user_id": user.id,
-            "favorite_characters": serialized_characters,
-            "favorite_planets": serialized_planets,
-            "favorite_vehicles": serialized_vehicles
+    if query_vehicles == [] and query_planets == [] and query_characters == []:
+        return jsonify({"msg" : "There is no favorites"}), 404
+    else:
+        response_body = {
+            "msg": "Hello, this are the favorite characters ",
+            "results": [           
+                results_characters,
+                results_planets,
+                results_vehicles
+                ]  
         }
 
-        # Agrega los favoritos del usuario a la lista de todos los favoritos
-        all_favorites.append(user_favorites)
 
-    # Retorna la lista de todos los favoritos
-    return jsonify({"msg": "Here are all the favorites", "results": all_favorites}), 200
+        return jsonify(response_body), 200
 
 
 #------------------------METODOS CHARACTERS--------------------------------------------------------------------------------------------------------------------------------------------
