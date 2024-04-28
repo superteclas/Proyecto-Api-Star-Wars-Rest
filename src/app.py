@@ -218,34 +218,31 @@ def delete_person(people_id):
 # METODO POST AÑADIR FAVORITOS PERSONAJES----------------------CON EXPLICACION
 
 @app.route('/favorite/people/<int:people_id>', methods=['POST'])
-def create_favorite_characters(people_id):
-    # Obtiene los datos 
-    body = request.json
+@jwt_required()
+def create_favorite_character(people_id):
     
-    # Verifica  usuario 
-    check_user = User.query.filter_by(id=body["id"]).first()
+    current_user_email = get_jwt_identity()
+    check_user = User.query.filter_by(email=current_user_email).first()
+    user_id = check_user.id
+
+    check_user = User.query.filter_by(id=user_id).first()
     if check_user is None:
-        # Si el usuario no existe, devuelve un mensaje de error y un código de estado HTTP 404
-        return jsonify({"msg": "No existe el usuario"}), 404
+        return jsonify({"msg" : "User doesn't exist"}), 404
     else:
-        # Verifica  personaje 
-        check_characters = Characters.query.filter_by(id=people_id).first()
-        if check_characters is None:
-            # Si el personaje no existe.......
-            return jsonify({"msg": "No existe el personaje"}), 404
+        check_character = Characters.query.filter_by(id=people_id).first()
+        if check_character is None:
+            return jsonify({"msg" : "Character doesn't exist"}), 404
         else:
-            # si el personaje ya está en favoritos..........
-            check_favorite_characters = CharactersFavorites.query.filter_by(characters_id=people_id, user_id=body["id"]).first()
-            if check_favorite_characters is None:
-                # Si el personaje no está en favoritos, lo añade a la lista de favoritos del usuario
-                new_favorite_characters = CharactersFavorites(user_id=body["id"], characters_id=people_id)
-                db.session.add(new_favorite_characters)
+            check_favorite_character = CharactersFavorites.query.filter_by(character_id=people_id, user_id=user_id).first()
+            
+            if check_favorite_character is None:
+                new_favorite_character = CharactersFavorites(user_id=user_id, character_id=people_id)
+                db.session.add(new_favorite_character)
                 db.session.commit()
-                # Devuelve un mensaje indicando que el personaje se añadió a favoritos y un código de estado
-                return jsonify({"msg": "Personaje añadido a favoritos"}), 200
+                return jsonify({"msg" : "Character added to favorites"}), 200
+            
             else:
-                # Si el personaje ya está en favoritos, devuelve un mensaje indicando que el personaje está repetido y un código de estado
-                return jsonify({"msg": "Personaje repetido"}), 400
+                return jsonify({"msg" : "Character repeated"}), 400
 
 
 # METODO DELETE FAVORITOS PERSONAJES
@@ -324,20 +321,16 @@ def get_all_planets():
 
 
 # METODO GET id MOSTRAR PLANETAS 
-@app.route('/planets/<int:planets_id>', methods=['GET'])
-def get_planet(planets_id):
+@app.route('/planets/<int:planet_id>', methods=['GET'])
+def get_planet(planet_id):
 
-    planet = Planets.query.get(planets_id)
+    planet = Planets.query.get(planet_id)
    
     if planet == None:
-        return jsonify({"msg" : "No existe planeta"}), 404
+        return jsonify({"msg" : "There is no such planet"}), 404
 
-    response_body = {
-        "msg": "Te muestro un planeta",
-        "results": planet.serialize()
-    }   
+    return jsonify(planet.serialize()), 200
 
-    return jsonify(response_body), 200
 
 
 # METODO POST CREAR PLANETAS 
@@ -385,34 +378,28 @@ def delete_planet(planet_id):
 
 
 # METODO POST FAVORITOS PLANETAS   
-@app.route('/favorite/planets/<int:planet_id>', methods=['POST'])
+@app.route('/favorite/planet/<int:planet_id>', methods=['POST'])
+@jwt_required()
 def create_favorite_planet(planet_id):
-    body = request.json
+    
+    current_user_email = get_jwt_identity()
+    check_user = User.query.filter_by(email=current_user_email).first()
+    user_id = check_user.id
 
-    check_user = User.query.filter_by(id=body["id"]).first()
-    
-    if check_user is None:
-        return jsonify({"msg" : "El usuario no existe"}), 404
-    
-    
+    check_user = User.query.filter_by(id=user_id).first()
     check_planet = Planets.query.filter_by(id=planet_id).first()
-    
     if check_planet is None:
-         return jsonify({"msg" : "El planeta no existe"}), 404
-    
-    
-    check_favorite_planet = PlanetsFavorites.query.filter_by(planet_id=planet_id, user_id=body["id"]).first()
-    
-    if check_favorite_planet is None:
-        
-        new_favorite_planet = PlanetsFavorites(user_id=body["id"], planet_id=planet_id)
-        db.session.add(new_favorite_planet)
-        db.session.commit()
-        
-        return jsonify({"msg" : "Planeta añadido a favoritos"}), 200
+        return jsonify({"msg" : "Planet doesn't exist"}), 404
     else:
-        return jsonify({"msg" : "El planeta ya está en la lista de favoritos"}), 400   
+        check_favorite_planet = PlanetsFavorites.query.filter_by(planet_id=planet_id, user_id=user_id).first()
+        if check_favorite_planet is None:
+            new_favorite_planet = PlanetsFavorites(user_id=user_id, planet_id=planet_id)
+            db.session.add(new_favorite_planet)
+            db.session.commit()
+            return jsonify({"msg" : "Planet added to favorites"}), 200
 
+        else:
+            return jsonify({"msg" : "Planet repeated"}), 400
 
 # METODO DELETE FAVORITOS PLANETAS
 @app.route('/favorite/planets/<int:planet_id>', methods=['DELETE'])
@@ -551,64 +538,48 @@ def delete_vehicle(vehicle_id):
 
 
 # METODO POST FAVORITOS VEHICULOS            
-@app.route('/favorite/vehicles/<int:vehicle_id>', methods=['POST'])
+@app.route('/favorite/vehicle/<int:vehicle_id>', methods=['POST'])
+@jwt_required()
 def create_favorite_vehicle(vehicle_id):
     
-    body = request.json
-    
-    check_user = User.query.filter_by(id=body["id"]).first()
-    
-    if check_user is None:
-        return jsonify({"msg" : "El usuario no existe"}), 404
+    current_user_email = get_jwt_identity()
+    check_user = User.query.filter_by(email=current_user_email).first()
+    user_id = check_user.id
+
+    check_user = User.query.filter_by(id=user_id).first()
+    check_vehicle = Vehicles.query.filter_by(id=vehicle_id).first()
+    if check_vehicle is None:
+        return jsonify({"msg" : "Vehicle doesn't exist"}), 404
     else:
+        check_favorite_vehicle = VehiclesFavorites.query.filter_by(vehicle_id=vehicle_id, user_id=user_id).first()
+        if check_favorite_vehicle is None:
+            new_favorite_vehicle = VehiclesFavorites(user_id=user_id, vehicle_id=vehicle_id)
+            db.session.add(new_favorite_vehicle)
+            db.session.commit()
+            return jsonify({"msg" : "Vehicle added to favorites"}), 200
         
-        check_vehicle = Vehicles.query.filter_by(id=vehicle_id).first()
-        
-        if check_vehicle is None:
-            return jsonify({"msg" : "El vehículo no existe"}), 404
         else:
-            
-            check_favorite_vehicle = VehiclesFavorites.query.filter_by(vehicle_id=vehicle_id, user_id=body["id"]).first()
-            
-            if check_favorite_vehicle is None:
-                new_favorite_vehicle = VehiclesFavorites(user_id=body["id"], vehicle_id=vehicle_id)
-                db.session.add(new_favorite_vehicle)
-                db.session.commit()
-                
-                return jsonify({"msg" : "¡Vehículo añadido a favoritos!"}), 200
-            else:
-                return jsonify({"msg" : "¡Vehículo repetido en favoritos!"}), 400
+            return jsonify({"msg" : "Vehicle repeated"}), 400
 
+@app.route("/signup", methods=["POST"])
+def signup():
+    email = request.json.get("email", None)
+    password = request.json.get("password", None)
 
-# METODO DELETE FAVORITOS VEHICULOS
-@app.route('/favorite/vehicles/<int:vehicle_id>', methods=['DELETE'])
-def delete_favorite_vehicle(vehicle_id):
     
-    body = request.json
-    
-    check_user = User.query.filter_by(id=body["id"]).first()
-    
-    if check_user is None:
-        return jsonify({"msg" : "El usuario no existe"}), 404
+    user_exist = User.query.filter_by(email=email).first()
+    if user_exist is None:
+        new_user = User(
+            email=email,
+            password=password
+        )
+        db.session.add(new_user)
+        db.session.commit()
+        access_token = create_access_token(identity=email)
+        return jsonify(access_token=access_token),200
+
     else:
-        
-        check_vehicle = Vehicles.query.filter_by(id=vehicle_id).first()
-        
-        if check_vehicle is None:
-            return jsonify({"msg" : "El vehículo no existe"}), 404
-        else:
-            
-            favorite_vehicle = VehiclesFavorites.query.filter_by(vehicle_id=vehicle_id, user_id=body["id"]).first()
-            
-            if favorite_vehicle:
-                db.session.delete(favorite_vehicle)
-                db.session.commit()
-                
-                return jsonify({"msg" : "¡Vehículo eliminado de favoritos!"}), 200
-            else:
-                return jsonify({"msg" : "¡Vehículo no encontrado en favoritos!"}), 404  
-
-
+        return jsonify({"msg": "User exist"}), 400
 
 
 # this only runs if `$ python src/app.py` is executed
