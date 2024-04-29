@@ -564,6 +564,29 @@ def create_favorite_vehicle(vehicle_id):
         else:
             return jsonify({"msg" : "Vehicle repeated"}), 400
 
+# METODO DELETE FAVORITOS VEHICULOS
+
+@app.route('/favorite/vehicle/<int:vehicle_id>', methods=['DELETE'])
+@jwt_required()
+def delete_favorite_vehicle(vehicle_id):
+    
+    current_user_email = get_jwt_identity()
+    check_user = User.query.filter_by(email=current_user_email).first()
+    user_id = check_user.id
+
+    check_user = User.query.filter_by(id=user_id).first()
+    check_vehicle = Vehicles.query.filter_by(id=vehicle_id).first()
+    if check_vehicle is None:
+        return jsonify({"msg" : "Vehicle doesn't exist"}), 404
+    else:
+        check_favorite_vehicle = VehiclesFavorites.query.filter_by(vehicle_id=vehicle_id, user_id=user_id).first()
+        if check_favorite_vehicle is None:
+            return jsonify({"msg" : "Vehicle is not in favorites"}), 400
+        else:
+            db.session.delete(check_favorite_vehicle)
+            db.session.commit()
+            return jsonify({"msg" : "Vehicle deleted from favorites"}), 200
+
 @app.route("/signup", methods=["POST"])
 def signup():
     email = request.json.get("email", None)
