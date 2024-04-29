@@ -248,24 +248,30 @@ def create_favorite_character(people_id):
 # METODO DELETE FAVORITOS PERSONAJES
 
 @app.route('/favorite/people/<int:people_id>', methods=['DELETE'])
+@jwt_required()
 def delete_favorite_characters(people_id):
-    body = request.json
-    check_user = User.query.filter_by(id=body["id"]).first()
+    current_user_email = get_jwt_identity()
+    check_user = User.query.filter_by(email=current_user_email).first()
+    user_id = check_user.id
+
+    check_user = User.query.filter_by(id=user_id).first()
     if check_user is None:
-        return jsonify({"msg" : "El usuario no existe"}), 404
+        return jsonify({"msg" : "User doesn't exist"}), 404
     else:
-        check_characters = Characters.query.filter_by(id=people_id).first()
-        if check_characters is None:
-            return jsonify({"msg" : "El personaje no existe"}), 404
+        check_character = Characters.query.filter_by(id=people_id).first()
+        if check_character is None:
+            return jsonify({"msg" : "Character doesn't exist"}), 404
         else:
-            favorite_characters = CharactersFavorites.query.filter_by(characters_id=people_id, user_id=body["id"]).first()
-            if favorite_characters:
-                #---------------SOLO CAMBIA .DELETE PARA ELIMINAR DE FAVORITOS------
-                db.session.delete(favorite_characters)
+            check_favorite_character = CharactersFavorites.query.filter_by(character_id=people_id, user_id=user_id).first()
+            
+            if check_favorite_character is None:
+                new_favorite_character = CharactersFavorites(user_id=user_id, character_id=people_id)
+                db.session.delete(new_favorite_character)
                 db.session.commit()
-                return jsonify({"msg" : "¡Personaje eliminado de favoritos!"}), 200
+                return jsonify({"msg" : "Character deleted to favorites"}), 200
+            
             else:
-                return jsonify({"msg" : "¡Personaje no encontrado en favoritos!"}), 404          
+                return jsonify({"msg" : "Character repeated"}), 400    
 
 # METODO PUT ACTUALIZAR PERSONAJES
 
@@ -403,30 +409,27 @@ def create_favorite_planet(planet_id):
 
 # METODO DELETE FAVORITOS PLANETAS
 @app.route('/favorite/planets/<int:planet_id>', methods=['DELETE'])
+@jwt_required()
 def delete_favorite_planet(planet_id):
     
-    body = request.json
-    
-    check_user = User.query.filter_by(id=body["id"]).first()
-    
-    if check_user is None:
-        return jsonify({"msg" : "El usuario no existe"}), 404
-    
+    current_user_email = get_jwt_identity()
+    check_user = User.query.filter_by(email=current_user_email).first()
+    user_id = check_user.id
+
+    check_user = User.query.filter_by(id=user_id).first()
+    check_planet = Planets.query.filter_by(id=planet_id).first()
+    if check_planet is None:
+        return jsonify({"msg" : "Planet doesn't exist"}), 404
     else:
-        check_planet = Planets.query.filter_by(id=planet_id).first()
-        
-        if check_planet is None:
-            return jsonify({"msg" : "El planeta no existe"}), 404
-        
+        check_favorite_planet = PlanetsFavorites.query.filter_by(planet_id=planet_id, user_id=user_id).first()
+        if check_favorite_planet is None:
+            new_favorite_planet = PlanetsFavorites(user_id=user_id, planet_id=planet_id)
+            db.session.delete(new_favorite_planet)
+            db.session.commit()
+            return jsonify({"msg" : "Planet delete to favorites"}), 200
+
         else:
-            favorite_planet = PlanetsFavorites.query.filter_by(planet_id=planet_id, user_id=body["id"]).first()
-            
-            if favorite_planet:
-                db.session.delete(favorite_planet)
-                db.session.commit()
-                return jsonify({"msg" : "¡Planeta eliminado de favoritos!"}), 200
-            else:
-                return jsonify({"msg" : "¡Planeta no encontrado en favoritos!"}), 404  
+            return jsonify({"msg" : "Planet repeated"}), 400
 
 # METODO PUT ACTUALIZAR PLANETAS
 
