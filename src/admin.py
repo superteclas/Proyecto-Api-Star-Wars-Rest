@@ -4,12 +4,12 @@ from models import db, User, Characters, Planets,Vehicles, CharactersFavorites, 
 from flask_admin.contrib.sqla import ModelView
 
 
-
+#Esta función se encarga de configurar el admin de la aplicación
 def setup_admin(app):
     app.secret_key = os.environ.get('FLASK_APP_KEY', 'sample key')
     app.config['FLASK_ADMIN_SWATCH'] = 'cerulean'
     admin = Admin(app, name='Superteclas Admin', template_mode='bootstrap3')
-
+#Esta clase se encarga de mostrar los datos de la tabla CharactersFavorites en el admin de la aplicación
     class MyFavoriteViewCharacters(ModelView):
         column_list = ( 'character_id', 'user_id',)
         form_columns = ('character_id', 'user_id',)
@@ -21,7 +21,7 @@ def setup_admin(app):
         column_list = ( 'vehicle_id', 'user_id',)
         form_columns = ('vehicle_id', 'user_id',)
 
-    # Add your models here, for example this is how we add a the User model to the admin
+    # Esta función se encarga de agregar las tablas al admin de la aplicación
     admin.add_view(ModelView(User, db.session))
     admin.add_view(ModelView(Characters, db.session))
     admin.add_view(ModelView(Planets, db.session))
