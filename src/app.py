@@ -82,6 +82,34 @@ def get_all_users():
     }
     return jsonify(response_body), 200
 
+
+# METODO POST PARA AGREGAR UN USUARIO NUEVO
+@app.route('/user', methods=['POST'])
+def create_user():
+        # Obtiene los datos del cuerpo de la solicitud en formato JSON
+        body = request.json
+        
+        # Consulta si ya existe un usuario con el mismo email
+        user_query = User.query.filter_by(email=body["email"]).first()
+        
+        # Verifica si ya existe un usuario con el mismo email
+        if user_query is not None:
+            return jsonify({"msg": "El usuario ya existe"}), 400
+        
+        # Crea un nuevo usuario con los datos proporcionados
+        new_user = User(
+            email=body["email"],
+            password=body["password"],
+            is_active=body["true"]
+            
+        )
+        
+        # Agrega el nuevo usuario a la base de datos
+        db.session.add(new_user)
+        db.session.commit()
+        
+        return jsonify({"msg": "Usuario creado exitosamente"}), 201
+
 # METODO GET PARA OBTENER TODOS LOS USUARIOS------------------------------------------------------- CON EXPLICACION
 
 @app.route('/users/favorites', methods=['GET'])
