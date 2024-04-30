@@ -14,6 +14,7 @@ from models import db, User, Characters, Planets, Vehicles, CharactersFavorites,
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
+#CORS(app)   ---probando acceder desde el front
 
 
 # Setup the Flask-JWT-Extended extension
