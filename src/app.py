@@ -616,25 +616,35 @@ def delete_favorite_vehicle(vehicle_id):
             db.session.commit()
             return jsonify({"msg" : "Vehicle deleted from favorites"}), 200
 
-@app.route("/signup", methods=["POST"])
+@app.route('/signup', methods=['POST'])
 def signup():
-    email = request.json.get("email", None)
-    password = request.json.get("password", None)
-
+    # Obtiene los datos del cuerpo de la solicitud en formato JSON
+    body = request.json
     
-    user_exist = User.query.filter_by(email=email).first()
-    if user_exist is None:
-        new_user = User(
-            email=email,
-            password=password
-        )
-        db.session.add(new_user)
-        db.session.commit()
-        access_token = create_access_token(identity=email)
-        return jsonify(access_token=access_token),200
+    # Verifica si se proporcionan todos los datos necesarios
+    if "email" not in body or "password" not in body:
+        return jsonify({"msg": "Faltan datos obligatorios"}), 400
+    
+    # Consulta si ya existe un usuario con el mismo email
+    user_query = User.query.filter_by(email=body["email"]).first()
+    
+    # Verifica si ya existe un usuario con el mismo email
+    if user_query is not None:
+        return jsonify({"msg": "El usuario ya existe"}), 400
+    
+    # Crea un nuevo usuario con los datos proporcionados
+    new_user = User(
+        email=body["email"],
+        password=body["password"],
+        is_active=True  # Establece is_active como True
+    )
+    
+    # Guarda el nuevo usuario en la base de datos
+    db.session.add(new_user)
+    db.session.commit()
+    
+    return jsonify({"msg": "Usuario registrado exitosamente"}), 201
 
-    else:
-        return jsonify({"msg": "User exist"}), 400
 
 
 # this only runs if `$ python src/app.py` is executed
