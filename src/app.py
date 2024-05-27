@@ -147,6 +147,41 @@ def get_all_favorite():
         return jsonify(response_body), 200
 
 
+# METODO GET PARA OBTENER LOS FAVORITOS DE UN USUARIO ESPECIFICO
+@app.route('/user/<int:user_id>/favorites', methods=['GET'])
+@jwt_required()
+def get_user_favorites(user_id):
+    current_user_email = get_jwt_identity()
+    check_user = User.query.filter_by(email=current_user_email).first()
+
+    if check_user.id != user_id:
+        return jsonify({"msg": "Unauthorized access"}), 403
+
+    query_characters = CharactersFavorites.query.filter_by(user_id=user_id).all()
+    results_characters = list(map(lambda item: item.serialize(), query_characters))
+
+    query_planets = PlanetsFavorites.query.filter_by(user_id=user_id).all()
+    results_planets = list(map(lambda item: item.serialize(), query_planets))
+
+    query_vehicles = VehiclesFavorites.query.filter_by(user_id=user_id).all()
+    results_vehicles = list(map(lambda item: item.serialize(), query_vehicles))
+
+    if not results_characters and not results_planets and not results_vehicles:
+        return jsonify({"msg": "There are no favorites"}), 404
+
+    response_body = {
+        "msg": "Here are the favorite items for the user",
+        "results": {
+            "characters": results_characters,
+            "planets": results_planets,
+            "vehicles": results_vehicles
+        }
+    }
+
+    return jsonify(response_body), 200
+
+
+
 #------------------------METODOS CHARACTERS--------------------------------------------------------------------------------------------------------------------------------------------
 
 
