@@ -1,63 +1,96 @@
-<a href="https://www.breatheco.de"><img height="280" align="right" src="https://github.com/4GeeksAcademy/flask-rest-hello/blob/main/docs/assets/badge.png?raw=true"></a>
+Claro, aquí tienes un README para el proyecto "Proyecto-Starwars-Alvaro-Backend":
 
-# Flask Boilerplate for Junior Developers
+---
 
-Create flask API's in minutes, [📹 watch the video tutorial](https://youtu.be/ORxQ-K3BzQA).
+# Proyecto Star Wars - Backend
 
-- [Extensive documentation here](https://start.4geeksacademy.com).
-- Integrated with Pipenv for package managing.
-- Fast deloyment to render.com or heroku with `$ pipenv run deploy`.
-- Use of `.env` file.
-- SQLAlchemy integration for database abstraction.
+![Captura de Pantalla 2024-06-17 a las 10 10 56](https://github.com/superteclas/Proyecto-Starwars-Alvaro-Backend/assets/147168257/b53e7e49-26b0-43b4-90dd-1ca940da29d0)
 
-## 1) Installation
+![Captura de Pantalla 2024-06-17 a las 10 10 21](https://github.com/superteclas/Proyecto-Starwars-Alvaro-Backend/assets/147168257/216c9a8c-f07b-4c67-8de9-f0c0662eeab5)
 
-This template installs itself in a few seconds if you open it for free with Codespaces (recommended) or Gitpod.
-Skip this installation steps and jump to step 2 if you decide to use any of those services.
+![Captura de Pantalla 2024-06-17 a las 10 10 14](https://github.com/superteclas/Proyecto-Starwars-Alvaro-Backend/assets/147168257/4daf69b7-bdcc-41e7-843c-0191198c4d92)
 
-> Important: The boiplerplate is made for python 3.10 but you can change the `python_version` on the Pipfile.
 
-The following steps are automatically runned withing gitpod, if you are doing a local installation you have to do them manually:
+Este proyecto es la parte backend de una aplicación basada en la saga de Star Wars. Fue desarrollado como parte del Bootcamp de Full Stack Developer en 4Geeks Academy.
 
-```sh
-pipenv install;
-psql -U root -c 'CREATE DATABASE example;'
-pipenv run init;
-pipenv run migrate;
-pipenv run upgrade;
-```
+## Descripción
 
-> Note: Codespaces users can connect to psql by typing: `psql -h localhost -U gitpod example`
+La aplicación proporciona una API RESTful que permite gestionar datos relacionados con personajes, planetas, y vehículos de Star Wars. Utiliza Python y Flask para el desarrollo del backend y SQLAlchemy para la gestión de la base de datos.
 
-## 2) How to Start coding
+## Tecnologías Utilizadas
 
-There is an example API working with an example database. All your application code should be written inside the `./src/` folder.
+- **Lenguaje**: Python
+- **Framework**: Flask
+- **Base de Datos**: PostgreSQL
+- **ORM**: SQLAlchemy
+- **Herramientas**: Docker, Git
 
-- src/main.py (it's where your endpoints should be coded)
-- src/models.py (your database tables and serialization logic)
-- src/utils.py (some reusable classes and functions)
-- src/admin.py (add your models to the admin and manage your data easily)
+## Instalación
 
-For a more detailed explanation, look for the tutorial inside the `docs` folder.
+1. Clona el repositorio:
+   ```bash
+   git clone https://github.com/superteclas/Proyecto-Starwars-Alvaro-Backend.git
+   cd Proyecto-Starwars-Alvaro-Backend
+   ```
 
-## Remember to migrate every time you change your models
+2. Crea y activa un entorno virtual:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate
+   ```
 
-You have to migrate and upgrade the migrations for every update you make to your models:
+3. Instala las dependencias:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-```bash
-$ pipenv run migrate # (to make the migrations)
-$ pipenv run upgrade  # (to update your databse with the migrations)
-```
+4. Configura las variables de entorno:
+   Crea un archivo `.env` en el directorio raíz del proyecto y agrega las siguientes variables:
+   ```env
+   FLASK_APP=src/app.py
+   FLASK_DEBUG=True
+   DATABASE_URL=postgresql://usuario:contraseña@localhost:5432/starwars
+   ```
 
-## Check your API live
+5. Realiza las migraciones de la base de datos:
+   ```bash
+   flask db init
+   flask db migrate
+   flask db upgrade
+   ```
 
-1. Once you run the `pipenv run start` command your API will start running live and you can open it by clicking in the "ports" tab and then clicking "open browser".
+6. Ejecuta la aplicación:
+   ```bash
+   flask run
+   ```
 
-> ✋ If you are working on a coding cloud like [Codespaces](https://docs.github.com/en/codespaces/developing-in-codespaces/forwarding-ports-in-your-codespace#sharing-a-port) or [Gitpod](https://www.gitpod.io/docs/configure/workspaces/ports#configure-port-visibility) make sure that your forwared port is public.
+## Endpoints
 
-## Publish/Deploy your website!
+- **/characters**: Devuelve una lista de personajes.
+- **/planets**: Devuelve una lista de planetas.
+- **/vehicles**: Devuelve una lista de vehículos.
+- **/characters/<id>**: Devuelve información de un personaje específico.
+- **/planets/<id>**: Devuelve información de un planeta específico.
+- **/vehicles/<id>**: Devuelve información de un vehículo específico.
 
-This boilerplate it's 100% read to deploy with Render.com and Herkou in a matter of minutes. Please read the [official documentation about it](https://start.4geeksacademy.com/deploy).
+## Contribución
+
+Las contribuciones son bienvenidas. Por favor, sigue estos pasos:
+1. Haz un fork del proyecto.
+2. Crea una nueva rama (`git checkout -b feature/nueva-funcionalidad`).
+3. Realiza los cambios y haz un commit (`git commit -m 'Añadir nueva funcionalidad'`).
+4. Sube los cambios (`git push origin feature/nueva-funcionalidad`).
+5. Abre una solicitud de extracción.
+
+## Licencia
+
+Este proyecto está bajo la licencia MIT. Para más detalles, consulta el archivo LICENSE.
+
+## Contacto
+
+Desarrollado por [Álvaro](https://github.com/superteclas). Si tienes alguna pregunta o sugerencia, no dudes en contactarnos.
+
+
 
 ### Contributors
 
